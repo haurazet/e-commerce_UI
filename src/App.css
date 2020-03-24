@@ -1,31 +1,253 @@
-.App {
-  text-align: center;
+
+
+.hovererr:hover {
+  cursor: pointer;
+  
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* LOGIN */
+
+.loginbackground {
+background-image: url(./img/99815.png) ;
+background-attachment: fixed;
+background-size: 100% 100%;
+
+}
+
+.backgroundinput:focus {
+  /* background-color: #af3636;
+  border-bottom: green; */
+  color: #3790a0 !important;
+  border-bottom: 3px solid #3790a0 !important;
+}
+
+.backgroundinput:focus + .fa{
+  /* background-color: #af3636;
+  border-bottom: green; */
+  color: #3790a0 !important;
+  border-bottom: 3px solid #3790a0 !important;
+}
+
+
+.whitebackground {
+  background-color: #f5efef;
+  /* border-radius: 10px; */
+}
+
+.loginbtn {
+  background-color: #3790a0 !important;
+  color: white !important;
+}
+
+.loginfooter {
+  color: #282c34;
+  font-size: 14px;
+}
+
+.loginfooter .signuplink:hover{
+  color: blue;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+.dropdown1 {
+  width: 100px;
+}
+
+.hoverred :hover {
+  color: red;
+}
+
+.hoverblack :hover {
+  color: black;
+}
+
+.no-shadow{
+  box-shadow: none !important;
+}
+
+/* .my-light-blue{
+  background-color: rgb(169, 191, 197); 
+} */
+.my-light-blue{
+  background-color: #f79e9e; 
+}
+
+
+.double-light-blue{
+  background-color: #3790a0 !important; 
+}
+
+.my-light-pink{
+  background-color:#fac3d6 !important;
+}
+
+.font {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+}
+
+/* HEADER */
+
+.fontlogo {
+  font-family: 'Amita', cursive;
+  font-weight: 400;
+  font-size: 30px;
+  color: #F6FAFB;
+}
+
+.navbar-text {
+  font-size: 18px;
+  color: #F6FAFB;
+  font-weight: 200;
+}
+
+.navbarhome {
+  height: 75px;
+}
+
+.navbarnothome {
+  height: 40px;
+}
+
+.quick-btn {
+  position: relative;
+  display: inline-block;
+  width: 25px;
+}
+
+.quick-btn .label {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  font-size: 11px;
+  border-radius: 30px;
+  font-weight: normal;
+}
+
+/* HOME */
+.my-pink{
+  color: #f84886 !important;
+
+}
+
+.kotak-hitam{
+  background-color: rgba(0, 0, 0, 0);
+  width: 100%;
+  height: 200px;
+  position: absolute;
+  top:0;
+  z-index:10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 500ms;
+}
+
+.kotak-hitam:hover{
+  background-color: rgba(0, 0, 0, 0.164);
+}
+
+.tombol-buynow {
+  display: none;
+}
+
+.kotak-hitam:hover .tombol-buynow{
+  display: block;
+  border: 2px solid #118da3;
+  color: #118da3;
+  background-color: transparent ;
+  padding: 10px 15px 10px 15px;
+  transition: 500ms;
+}
+
+.kotak-hitam:hover .tombol-buynow:hover {
+  background-color:#118da3 ;
+  border: 2px solid white;
+  color: white;
+}
+
+/* PRODUCT DETAIL */
+
+
+.border-headerdetail{
+  border-bottom: gray solid 0.5px;
+}
+
+.font-nameprod{
+  font-size: 30px;
+}
+
+/* .font-typography */
+
+
+/* PRODUCT DETAIL IMAGE */
+.tiles {
+  position: absolute;
+  margin-top: 15%;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 400px;
+}
+
+.tile {
+  position: relative;
+  float: left;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  transition: transform .5s ease-out;
+  cursor: zoom-in;
+}
+
+/* CART */
+tbody, tr{
+  background-color: white !important;
+}
+
+.checkout:hover {
+  background-color: #f07474 !important;
+  border: none !important;
+  color: white !important;
+}
+
+/* REGISTER */
+.subtleshadow{
+  box-shadow: 0px 3px 15px rgba(34, 33, 33, 0.356);
+}
+
+
+/* PRODUCT PAGE */
+.greyborder {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  height: 300px;
+  margin-top: 20px;
+  font-size: 14px;
+  padding: 3%;
+}
+
+.btn .btn-sm .border{
+  border-radius: 30px !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
 }
 
 @keyframes App-logo-spin {
