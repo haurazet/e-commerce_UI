@@ -1,41 +1,35 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
-import { MDBCarousel, MDBCarouselInner, MDBCarouselItem, MDBView, MDBMask } from
-"mdbreact";
+import { MDBCarousel, MDBCarouselInner, MDBCarouselItem, MDBView} from "mdbreact";
 import {
     Card,  CardBody,
-    CardTitle, CardSubtitle
-  } from 'reactstrap';
+    CardTitle, CardSubtitle} from 'reactstrap';
 import Axios from 'axios'
 import { API_URL } from '../supports/Apiurl';
 import Numeral from 'numeral'
 import {BukanHome,IniHome} from './../redux/actions'
 import { Link } from 'react-router-dom'
 import SquareButton from '../components/button'
-// import fFaCartPlus from 'react-icons/fa'
-// import './../../public/images/'
 
 class Home extends Component {
     state = { 
-        photos:['./images/attractive-beautiful-beautiful-girl-beauty-458766.jpg', 
-                './images/beautiful-birthday-blur-bouquet-318379.jpg',
-                './images/makeupheader.jpg'],
-        products:[]
+        photos:['./images/attractive-beautiful-beautiful-girl-beauty-458766.jpg',
+                './images/pexels-photo-1029896.jpeg'],
+        products:[],
+        category:[]
      }
 
-    componentDidMount(){
-        this.props.IniHome()
-        Axios.get(`${API_URL}/products?_expand=category&_limit=5`)
-        .then((res)=>{
-            this.setState({products:res.data})
-            // console.log(res.data)
-        }).catch((err)=>{
-            console.log(err)
-        })
-    }
+     async componentDidMount(){
+        try {
+            var res=await Axios.get(`${API_URL}/product/getprod`)
+            this.setState({categories:res.data.category,products:res.data.product})
+            console.log(res.data.product)
+        } catch (error){
+            console.log(error)
+        }
+    } 
 
     componentWillUnmount=()=>{
-        // console.log('ini unmount')
         this.props.BukanHome()
     }
 
@@ -44,16 +38,13 @@ class Home extends Component {
             return (
                 <MDBCarouselItem key={index} itemId={index+1}>
                     <MDBView>
-                        <div style={{width:'100', height:600}}>
+                        <div style={{width:'100', height:'80vh'}}>
                             <img
-                                // className="d-block w-100"
                                 src={val}
                                 alt="First slide"
-                                // height="700px"
                                 width="100%"
                             />
                         </div>
-                    <MDBMask overlay="black-light" />
                     </MDBView>
                 </MDBCarouselItem>
             )
@@ -61,13 +52,14 @@ class Home extends Component {
     }
 
     renderProducts=()=>{
-        return this.state.products.map((val,index)=>{
+        var bestseller= this.state.products.slice(5,10)
+        return bestseller.map((val,index)=>{
             return(
                 <div key={index} className="p-4" style={{width:'20%'}}>
                     <div>
                         <Card className="text-center no-shadow" style={{fontSize:'13px'}}>
                             <div style={{height:191, width:'100%'}}>
-                                <img src={val.image} width="100%" height="100%" alt=""/>
+                                <img src={API_URL+val.image} width="100%" height="100%" alt=""/>
                                 <div className="kotak-hitam">
                                     <Link to={`/productdetail/${val.id}`}>
                                     <button className="tombol-buynow">Product Detail</button>
@@ -86,9 +78,11 @@ class Home extends Component {
         })
     }
 
+
+
     render() { 
             return ( 
-                <div>
+                <div className='mt-5 pt-1'>
                     <MDBCarousel
                         activeItem={1}
                         length={this.state.photos.length}
@@ -100,9 +94,18 @@ class Home extends Component {
                             {this.renderphoto()}
                         </MDBCarouselInner>
                     </MDBCarousel>
+
+                    <div style={{height:'75vh'}} >
+                        <h3 className="text-center mt-5 mb-5 text-uppercase "> shop by category </h3>
+                        <div className="containerscard mx-1"> 
+                            <div className="category">Skincare</div>
+                            <div className="category">Make Up</div>
+                            <div className="category">Accesories</div>
+                        </div> 
+                    </div>
                     <div> 
                         <div> 
-                            <h3 className="text-center mt-5 text-uppercase"> BEST SELLER </h3>
+                            <h3 className="text-center mt-5 text-uppercase"> best seller </h3>
                         </div>
                         <div className="d-flex px-5 ">
                             {this.renderProducts()}

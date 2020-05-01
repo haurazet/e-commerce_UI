@@ -12,6 +12,7 @@ import {Provider} from 'react-redux';
 import reducers from './redux/reducers/index';
 import ReduxThunk from 'redux-thunk'
 
+
 const store=createStore(reducers,{},applyMiddleware(ReduxThunk))
 
 ReactDOM.render(

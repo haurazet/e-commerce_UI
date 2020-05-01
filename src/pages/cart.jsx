@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux'
 import Axios from 'axios'
-import {API_URL} from './../supports/Apiurl'
+import {API_URL} from '../supports/Apiurl'
 import {Table} from 'reactstrap'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -9,7 +9,7 @@ import {changetoRupiah} from '../supports/changetoRupiah'
 import { AiOutlineDelete } from 'react-icons/ai';
 import { Link } from 'react-router-dom'
 import SquareButton  from '../components/button'
-import {Getdata} from './../redux/actions'
+import {Getdata} from '../redux/actions'
 const MySwal = withReactContent(Swal)
 
 
@@ -25,27 +25,18 @@ class Cart extends Component {
     }
 
     getdata=()=>{
-        Axios.get(`${API_URL}/transactions?_embed=transactiondetails&userId=${this.props.User.id}&status=oncart`)
+        console.log('masuk get data')
+        Axios.get(`${API_URL}/transaction/getcartdata/${this.props.User.id}`)
         .then((res)=>{
-            var newarrforprod=[]
-            res.data[0].transactiondetails.forEach(element => {  //push detail product ke newarrforprod berdasarkan product id yg ada di cart
-               newarrforprod.push(Axios.get(`${API_URL}/products/${element.productId}`)) //setiap itemnya di push jadi array of items
-            });
-            Axios.all(newarrforprod)
-            .then((res2)=>{
-                res2.forEach((val,index)=>{ //masukkan detail produk ke masing2 transdetail yg ada di dataprod
-                    res.data[0].transactiondetails[index].dataprod=val.data
-                })
-                this.setState({isicart:res.data[0].transactiondetails})
-            })
-        }).catch((err)=>{
-            console.log(err)
+            console.log(res.data)
+            this.setState({isicart:res.data})
         })
     }
 
     deleteconfirm=(index,id)=>{
+        console.log(id)
         MySwal.fire({
-            title: `Are you sure wanna delete ${this.state.isicart[index].dataprod.name} ?`,
+            title: `Are you sure wanna delete ${this.state.isicart[index].name} ?`,
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
@@ -54,17 +45,15 @@ class Cart extends Component {
             confirmButtonText: 'Yes, delete it!'
           }).then((result) => {
             if (result.value) {
-              Axios.delete(`${API_URL}/transactiondetails/${id}`)
+              Axios.get(`${API_URL}/transaction/deletecart/${id}`)
               .then((res)=>{
                   MySwal.fire(
                     'Deleted!',
                     'Your file has been deleted.',
                     'success'
                   ).then((result)=>{
-                      if(result.value){
-                          this.getdata()
-                          this.props.Getdata()
-                      }
+                        this.getdata()
+                        this.props.Getdata()
                   })
               }).catch((err)=>{
                   console.log(err)
@@ -73,36 +62,8 @@ class Cart extends Component {
           })
     }
 
-    // qtychange=((e,index)=>{
-    //     if(e.target.value===''){
-    //         this.setState({qty:0})
-    //     }
-    //     if(Number(e.target.value)){ //untuk filter yang diinput harus number
-    //         if(this.state.isicart[index].qty===0){
-    //             this.setState({qty:e.target.value[1]})
-    //             // setqty( e.target.value[1])
-    //         }else{
-    //             if(e.target.value>this.state.isicart[index].dataprod.stock){//jika valuenya lebih besar maka qtynya akan maksimal
-    //                 this.setState({qty:this.state.isicart[index].dataprod.stock})
-    //                 // setqty(stock)
-    //             }else if(e.target.value<1){
-    //                 this.setState({qty:1})
-    //                 // setqty(1)
-    //             }
-    //             else{
-    //                 // console.log(e.target.defaultValue)
-    //                 this.setState(e.target.value)
-    //                 // setqty(e.target.value)
-    //             }
-    //         }
-    //     }
-    // })
-
     onminqty=(index,id)=>{
-        var minqty={
-            qty:this.state.isicart[index].qty-1
-        }
-        Axios.patch(`${API_URL}/transactiondetails/${id}`,minqty)
+        Axios.get(`${API_URL}/transaction/minqty/${id}`)
         .then((res)=>{
             this.getdata()
             this.props.Getdata()
@@ -110,10 +71,7 @@ class Cart extends Component {
     }
 
     onplusqty=(index,id)=>{
-        var plusqty={
-            qty:this.state.isicart[index].qty+1
-        }
-        Axios.patch(`${API_URL}/transactiondetails/${id}`,plusqty)
+        Axios.get(`${API_URL}/transaction/plusqty/${id}`)
         .then((res)=>{
             this.getdata()
             this.props.Getdata()
@@ -124,32 +82,31 @@ class Cart extends Component {
         return this.state.isicart.map((val,index)=>{
             return (
                 <tr key={index} style={index === this.state.isicart.length-1?{borderBottom:'1px #DEE2E6 solid'}:{}}>
-                    <td>{val.dataprod.name}</td>
-                    <td className='text-center'><img src={val.dataprod.image} height='100' alt=''></img></td>
-                    <td className='text-center'>{changetoRupiah(val.dataprod.price)}</td>
+                    <td>{val.name}</td>
+                    <td className='text-center'><img src={API_URL+val.image} height='100' alt=''></img></td>
+                    <td className='text-center'>{changetoRupiah(val.price)}</td>
                     <td className="d-flex justify-content-center" style={index===0?{borderTop:'none'}:{}}>
                         <div className="d-flex" style={{border:'1px lightgrey solid', width:"160px"}}>
                         <button className='btn btn-link btn-sm m-0 text-center' 
                                 style={{fontSize:"20px", textDecoration:"none"}} 
                                 disabled={val.qty<=1?true:false} 
-                                onClick={()=>this.onminqty(index,val.id)}>-</button>
+                                onClick={()=>this.onminqty(index,val.transactiondetailsid)}>-</button>
                         <div>
                             <input 
                                 type="text" 
                                 style={{width:'40px',height:'100%',textAlign:'center',backgroundColor:'transparent', border:"none"}} 
                                 value={val.qty} 
                                 readOnly
-                                // onChange={this.qtychange(val, index)}
                             />
                         </div>
                         <button className='btn btn-link btn-sm m-0' 
                                 style={{fontSize:"20px", textDecoration:"none"}} 
-                                disabled={val.qty>=val.dataprod.stock?true:false} 
-                                onClick={()=>this.onplusqty(index,val.id)}>+</button>
+                                disabled={val.qty>=val.stock?true:false} 
+                                onClick={()=>this.onplusqty(index,val.transactiondetailsid)}>+</button>
                         </div>
                     </td>
-                    <td className='text-center'>{changetoRupiah(val.dataprod.price*val.qty)}</td>
-                    <td className="text-right"><button style={{width:'20px', fontSize:'1.2em', color:'gray'}} className="btn btn-link hoverblack p-0 m-0" onClick={()=>this.deleteconfirm(index,val.id)}><AiOutlineDelete/></button></td>
+                    <td className='text-center'>{changetoRupiah(val.price*val.qty)}</td>
+                    <td className="text-right"><button style={{width:'20px', fontSize:'1.2em', color:'gray'}} className="btn btn-link hoverblack p-0 m-0" onClick={()=>this.deleteconfirm(index,val.transactiondetailsid)}><AiOutlineDelete/></button></td>
                 </tr>
             )
         })
@@ -158,7 +115,7 @@ class Cart extends Component {
     rendertotalcart =()=>{
         var total=0
         this.state.isicart.forEach((val)=>{
-            var output= val.dataprod.price*val.qty
+            var output= val.price*val.qty
             total+=output
         })
         return (

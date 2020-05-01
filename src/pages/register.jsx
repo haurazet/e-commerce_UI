@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {MDBInput, MDBAlert,} from 'mdbreact';
 import { Button, Modal, ModalBody, ModalFooter } from 'reactstrap';
-import {RegisterUser, errormessageclear, notregister} from './../redux/actions'
+import {RegisterUser, errormessageclear, notregister, KeepLogin} from './../redux/actions'
 import {connect} from 'react-redux'
 
 const Register = ( props)=>{
@@ -9,6 +9,7 @@ const Register = ( props)=>{
     const [ismodalopen,setismodalopen]=useState(false)
     const [data,setdata]=useState({
         username:'',
+        email:'',
         password:'',
         confirmpassword:''
     })
@@ -68,7 +69,7 @@ const Register = ( props)=>{
             {/* <div className="col-md-2"></div> */}
             <div className="col-md-6 m-0 p-0">
                 <div className='d-flex justify-content-end align-items-center  ' style={{height:'97vh'}}>
-                    <form style={{width:'70%'}} onSubmit={onFormSubmit} className='whitebackground p-5 pb-2 subtleshadow'>
+                    <form style={{width:'70%'}} onSubmit={onFormSubmit} className='whitebackground py-4 px-5 pb-2 subtleshadow'>
                         <p className="h4 text-center mb-5 text-uppercase" style={{fontWeight:'200'}}>Sign up </p>
                         <div className="grey-text">
                             <MDBInput 
@@ -81,6 +82,16 @@ const Register = ( props)=>{
                                 type="text" 
                                 validate 
                                 value={data.username} /> 
+                            <MDBInput 
+                                className='backgroundinput' 
+                                label="Type email" 
+                                onChange={dataOnChange} 
+                                name='email' 
+                                icon="envelope" 
+                                group 
+                                type="text" 
+                                validate 
+                                value={data.email} /> 
                             <MDBInput 
                                 className='backgroundinput'  
                                 iconClass='fa'  
@@ -152,7 +163,7 @@ const MapstatetoProps=({Regis})=>{
     }
 
 }
-export default connect (MapstatetoProps,{RegisterUser,errormessageclear, notregister})(Register);
+export default connect (MapstatetoProps,{RegisterUser,errormessageclear, notregister, KeepLogin})(Register);
 
 
 // <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">

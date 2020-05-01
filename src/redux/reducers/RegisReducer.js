@@ -8,7 +8,9 @@ const INITIAL_STATE={
     loading:false,
     isregister:false,
     errormes:'',
-    successmes:''
+    successmes:'',
+    token:'',
+    verified:0,
 }
 
 export default (state=INITIAL_STATE,action)=>{

@@ -4,14 +4,8 @@ import Axios from 'axios'
 import {API_URL} from '../supports/Apiurl'
 import {Table} from 'reactstrap'
 import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
 import {changetoRupiah} from '../supports/changetoRupiah'
-import { AiOutlineDelete } from 'react-icons/ai';
-import { Link, Redirect } from 'react-router-dom'
 import SquareButton  from '../components/button'
-// import Swal from 'sweetalert2'
-
-const MySwal = withReactContent(Swal)
 
 
 
@@ -19,7 +13,6 @@ class AdminTransactions extends Component {
     state = { 
         isicart:[],
         totalpayment:0,
-        isdetailopen:false,
         transactionstatus:'',
         user:'',
         isloading:true
@@ -27,63 +20,43 @@ class AdminTransactions extends Component {
     
     componentDidMount(){
         this.getdata()
-        // this.totalpayment()
     }
     
     getdata=()=>{
-        Axios.get(`${API_URL}/transactions/${this.props.match.params.transactionId}?_embed=transactiondetails`)
+        Axios.get(`${API_URL}/transaction/transactiondetail/${this.props.match.params.transactionId}`)
         .then((res)=>{
             console.log(res.data)
-            this.setState({transactionstatus:res.data.status})
-            // console.log(this.state.isicart)
-            // console.log(res.data.transactiondetails)
-            var newarrforprod=[]
-            res.data.transactiondetails.forEach(element => {  //push detail product ke newarrforprod berdasarkan product id yg ada di cart
-               newarrforprod.push(Axios.get(`${API_URL}/products/${element.productId}`)) //setiap itemnya di push jadi array of items
-            });
-            // console.log(newarrforprod)
-            Axios.all(newarrforprod)
-            .then((res2)=>{
-                // console.log(res2)
-                res2.forEach((val,index)=>{ //masukkan detail produk ke masing2 transdetail yg ada di dataprod
-                    res.data.transactiondetails[index].dataprod=val.data
-                })
-                // console.log(res.data.transactiondetails)
-                this.setState({isicart:res.data.transactiondetails})
-                this.totalpayment()
-                console.log(this.state.isicart)
-            })
-            Axios.get(`${API_URL}/users/${res.data.userId}`)
-            .then((res3)=>{
-                res.data.userdata=res3.data
-                this.setState({user:res3.data})
-                console.log(this.state.user.address)
-                this.setState({isloading:false})
-            })
+            console.log(res.data)
+            this.setState({transactionstatus:res.data[0].status, isicart:res.data})
+            this.totalpayment()
+            this.setState({isloading:false})
         }).catch((err)=>{
             console.log(err)
         })
     }
 
     renderaddress=()=>{
-        console.log(this.state.user.address)
-        if(this.state.isloading==false){
-            if(this.state.user.address!==""){
-                return this.state.user.address.map((val,index)=>{
-                    return(
-                        <div key={index}>
-                            <div>{val.name}</div>
-                            <div>{val.phone}</div>
-                            <div>{val.street}</div>
-                            <div>{val.city} {val.state} {val.zip}</div>
-                        </div>
-                    )
-                })
-            }else{
-                return(
-                    <div>This customer does not have address yet</div>
-                )
-            }
+        if(this.state.isicart[0]){
+            return(
+                <div>
+                    <div>{this.state.isicart[0].username}</div>
+                    <div>{this.state.isicart[0].phonenumber}</div>
+                    <div>{this.state.isicart[0].address}</div>
+                </div>
+            )
+
+        }
+    }
+
+    renderpayment=()=>{
+        if(this.state.isicart[0]){
+            return(
+                <div>
+                    <div>Credit Card</div>
+                    <div>Credit Card Number: {this.state.isicart[0].creditcard_number}</div>
+                </div>
+            )
+
         }
     }
    
@@ -91,11 +64,11 @@ class AdminTransactions extends Component {
         return this.state.isicart.map((val,index)=>{
             return (
                 <tr key={index} style={index === this.state.isicart.length-1?{borderBottom:'1px #DEE2E6 solid'}:{}}>
-                    <td>{val.dataprod.name}</td>
-                    <td className='text-center'><img src={val.dataprod.image} height='75' alt=''></img></td>
-                    <td className='text-center'>{changetoRupiah(val.dataprod.price)}</td>
+                    <td>{val.name}</td>
+                    <td className='text-center'><img src={API_URL+val.image} height='75' alt=''></img></td>
+                    <td className='text-center'>{changetoRupiah(val.price)}</td>
                     <td>{val.qty}</td>
-                    <td className='text-center'>{changetoRupiah(val.dataprod.price*val.qty)}</td>
+                    <td className='text-center'>{changetoRupiah(val.price*val.qty)}</td>
                 </tr>
             )
         })
@@ -105,7 +78,7 @@ class AdminTransactions extends Component {
         console.log(this.state.isicart)
         var total=0
         this.state.isicart.forEach((val)=>{
-            var output= val.dataprod.price*val.qty
+            var output= val.price*val.qty
             total+=output
         })
         return this.setState({totalpayment:total})
@@ -116,7 +89,7 @@ class AdminTransactions extends Component {
     rendertotalcart =()=>{
         var total=0
         this.state.isicart.forEach((val)=>{
-            var output= val.dataprod.price*val.qty
+            var output= val.price*val.qty
             total+=output
         })
         
@@ -144,7 +117,7 @@ class AdminTransactions extends Component {
 
 
     verifypayment=()=>{
-        Axios.patch(`${API_URL}/transactions/${this.props.match.params.transactionId}`,{status:"onprocess"})
+        Axios.get(`${API_URL}/transaction/verifypayment/${this.props.match.params.transactionId}`)
         .then(()=>{
             Swal.fire({
                 icon: 'success',
@@ -155,41 +128,63 @@ class AdminTransactions extends Component {
               })
         })
     }
+
+    processorder=()=>{
+        Axios.get(`${API_URL}/transaction/processorder/${this.props.match.params.transactionId}`)
+        .then(()=>{
+            Swal.fire({
+                icon: 'success',
+                title: 'Success process order!',
+                text: 'Order completed',
+              }).then((res)=>{
+                  this.getdata()
+              })
+        })
+    }
     
     render() { 
         return ( 
             <div className="m-5 p-5">
-                {this.state.transactionstatus=="onpaymentverification"?
-                    <div className="text-center mt-3">
-                        <div className="mb-3">This order is waiting for your payment verification</div>
-                        <SquareButton text="Verify Payment  & Accept order" isfunction={true} onclick={()=>this.verifypayment()}/>  
-                        <div className="mt-5">Order Details</div>
+                 <div className="text-center mt-5 ">
+                        <div className="d-flex justify-content-center">
+                            <div className="mb-5 bg-dark text-white w-50 text-center">
+                                {this.state.transactionstatus==="onpaymentverification"?"This order is waiting for your payment verification":
+                                this.state.transactionstatus==='onprocess'?"Process this order":"Order completed"}
+                            </div>
+                        </div>
+                        <div>
+                            {this.state.transactionstatus==="onpaymentverification"?<SquareButton text="Verify Payment" isfunction={true} onclick={()=>this.verifypayment()}/>:
+                                this.state.transactionstatus==='onprocess'?<SquareButton text="Process Order" isfunction={true} onclick={()=>this.processorder()}/>:null}
+                            </div>
+                        <div className="mt-5 h5"><u>Order Details</u></div>
                     </div>
-                :
-                this.state.transactionstatus=='onprocess'?
-                    <div className="text-center mt-3">
-                        <div className="mb-3">Process this order</div>
-                        <div className="mt-5">Order Details</div>
-                    </div>
-                :
-                null
-                }
                 
                     <div className="row text-left">
                     <div className="col-md-5 my-5 mr-5">
                         <div>
-                            Ship to:
+                            <div className="font-weight-bold">
+                                Ship to:
+                            </div>
                             <div className="row mt-3">
                                 <div className="col-md-10">
                                     {this.renderaddress()}
                                 </div>
-                                
+                            </div>
+                        </div>
+                        <div className="mt-5" >
+                        <div className="font-weight-bold">
+                                Payment Method:
+                            </div>
+                            <div className="row mt-3">
+                                <div className="col-md-10">
+                                    {this.renderpayment()}
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div className="col-md-5 my-5 ml-5" >
                         <div> 
-                            <h5 className="text-center text-uppercase"> Product </h5>
+                            <h5 className="text-center text-uppercase "> Product </h5>
                         </div>
                         <Table striped>
                             <thead>

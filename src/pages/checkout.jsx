@@ -4,22 +4,17 @@ import Axios from 'axios'
 import {API_URL} from './../supports/Apiurl'
 import {Table} from 'reactstrap'
 import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
 import {changetoRupiah} from '../supports/changetoRupiah'
-import { AiOutlineDelete } from 'react-icons/ai';
-import { Link } from 'react-router-dom'
 import SquareButton  from '../components/button'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import {Getdata} from './../redux/actions'
-const MySwal = withReactContent(Swal)
 
 
 
 class Cart extends Component {
     state = { 
         isicart:[],
-        totalpayment:0,
         isPayment:false,
+        ccnumber:0
     }
     
     componentDidMount(){
@@ -27,28 +22,15 @@ class Cart extends Component {
     }
     
     getdata=()=>{
-        Axios.get(`${API_URL}/transactions?_embed=transactiondetails&userId=${this.props.User.id}&status=oncart`)
+        Axios.get(`${API_URL}/transaction/getcartdata/${this.props.User.id}`)
         .then((res)=>{
-            console.log(this.state.isicart)
-            console.log(res.data[0].transactiondetails)
-            var newarrforprod=[]
-            res.data[0].transactiondetails.forEach(element => {  //push detail product ke newarrforprod berdasarkan product id yg ada di cart
-               newarrforprod.push(Axios.get(`${API_URL}/products/${element.productId}`)) //setiap itemnya di push jadi array of items
-            });
-            console.log(newarrforprod)
-            Axios.all(newarrforprod)
-            .then((res2)=>{
-                console.log(res2)
-                res2.forEach((val,index)=>{ //masukkan detail produk ke masing2 transdetail yg ada di dataprod
-                    res.data[0].transactiondetails[index].dataprod=val.data
-                })
-                console.log(res.data[0].transactiondetails)
-                this.setState({isicart:res.data[0].transactiondetails})
-            })
-        }).catch((err)=>{
-            console.log(err)
+            console.log(res.data)
+            this.setState({isicart:res.data})
+            console.log(this.props.User.address)
         })
     }
+
+    //  ===================== SHIPPING AND PAYMENT INFO ===================== //
 
     renderaddress=()=>{
         if(this.props.User.address!==''){
@@ -68,16 +50,32 @@ class Cart extends Component {
             )
         }
     }
-   
+    
+    onSelectCC=(e)=>{
+        var selected= e.target.value
+        if(selected==="CC"){
+            this.setState({isPayment:true})
+        }
+        console.log(selected)
+    }
+    
+    dataOnChange=(e)=>{
+        var ccnumber=e.target.value
+        this.setState({ccnumber})
+        console.log(this.state.ccnumber)
+    }
+    
+    //  ===================== CART INFO ===================== //
+    
     renderisidata=()=>{
         return this.state.isicart.map((val,index)=>{
             return (
                 <tr key={index} style={index === this.state.isicart.length-1?{borderBottom:'1px #DEE2E6 solid'}:{}}>
-                    <td>{val.dataprod.name}</td>
-                    <td className='text-center'><img src={val.dataprod.image} height='100' alt=''></img></td>
-                    <td className='text-center'>{changetoRupiah(val.dataprod.price)}</td>
+                    <td>{val.name}</td>
+                    <td className='text-center'><img src={API_URL+val.image} height='100' alt=''></img></td>
+                    <td className='text-center'>{changetoRupiah(val.price)}</td>
                     <td>{val.qty}</td>
-                    <td className='text-center'>{changetoRupiah(val.dataprod.price*val.qty)}</td>
+                    <td className='text-center'>{changetoRupiah(val.price*val.qty)}</td>
                 </tr>
             )
         })
@@ -86,7 +84,7 @@ class Cart extends Component {
     rendertotalcart =()=>{
         var total=0
         this.state.isicart.forEach((val)=>{
-            var output= val.dataprod.price*val.qty
+            var output= val.price*val.qty
             total+=output
         })
         
@@ -112,25 +110,20 @@ class Cart extends Component {
         )
     }
 
-    onSelectCC=(e)=>{
-        var selected= e.target.value
-        if(selected==="CC"){
-            this.setState({isPayment:true})
-        }
-        console.log(selected)
-    }
-
     confirmorder=()=>{
         if(this.state.isPayment){
-            Axios.patch(`${API_URL}/transactions/${this.state.isicart[0].transactionId}`,{status:"onpaymentverification", method:"CC"})
+            console.log(this.state.isicart)
+            var data={
+                ccnumber:this.state.ccnumber
+            }
+            Axios.post(`${API_URL}/transaction/checkout/${this.state.isicart[0].transactionid}`,data)
             .then(()=>{
                 this.props.Getdata()
                 Swal.fire({
                     icon: 'success',
                     title: 'Success confirm payment!',
-                    text: 'Your payment is being verified, please wait for max 24 hour',
+                    text: 'Your payment is being verified, please wait for max 1x24 hour',
                   }).then(function(){
-    
                         window.location.href='/'
                     })
             })
@@ -149,12 +142,16 @@ class Cart extends Component {
             <div>
                 <div className="mt-5 mx-5 pt-5 px-5 row ">
 
+                    {/* ===================== SHIPPING AND PAYMENT INFO =====================*/}
+
                     <div className="col-md-5 my-5 mr-5">
                         <div>
                             Ship to:
                             <div className="row mt-3">
                                 <div className="col-md-10">
-                                    {this.renderaddress()}
+                                    <div>{this.props.User.username}</div>
+                                    <div>{this.props.User.phonenumber}</div>
+                                    <div>{this.props.User.address}</div>
                                 </div>
                                 <div className="col-md-2 m-0 p-0">
                                     <div className="btn btn-link m-0 p-0 blue-text text-capitalize">
@@ -176,13 +173,15 @@ class Cart extends Component {
                                 </div>
                                 <div>
                                 <div>
-                                    <input type="number" className="form-control" placeholder="Input credit card number" required/>
+                                    <input type="number" className="form-control" placeholder="Input card number" onChange={this.dataOnChange} required/>
                                 </div>
                                 </div>
                             </form>
                         </div>
-                        
                     </div>
+
+                    {/* ===================== CART INFO =====================*/}
+
                     <div className="col-md-5 my-5 ml-5" >
                         <div> 
                             <h5 className="text-center text-uppercase"> Product </h5>
@@ -202,9 +201,7 @@ class Cart extends Component {
                         </Table>
                             {this.rendertotalcart()}
                             <div className="text-right p-3" >
-                                {/* <Link to={`/transaction/${this.state.isicart[0].transactionId}`}> */}
-                                    <SquareButton isfunction={true} text="pay" onclick={this.confirmorder}/>
-                                {/* </Link> */}
+                                <SquareButton isfunction={true} text="pay" onclick={this.confirmorder}/>
                             </div>
                     </div>
                 </div>

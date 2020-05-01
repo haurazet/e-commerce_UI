@@ -21,9 +21,9 @@ const ProductDetail =(props)=>{
 
     useEffect(()=>{ //component didmount
         console.log('ini useeffect')
-        Axios.get(`${API_URL}/products/${props.match.params.idprod}`)
+        Axios.get(`${API_URL}/product/productdetail/${props.match.params.idprod}`)
         .then((res)=>{
-            // console.log(res.data)
+            console.log(res.data)
             setdata(res.data)
         }).catch((err)=>{
             console.log(err)
@@ -52,80 +52,94 @@ const ProductDetail =(props)=>{
     }
 
     const sendToCart=()=>{
-        if(props.User.islogin&&props.User.role==='user'){
+        if(props.User.islogin&&props.User.role===1){
             var objtransaction={
-                status:'oncart',
-                userId: props.User.id
+                userid: props.User.id,
+                productid: props.match.params.idprod,
+                qty,
+                username: props.User.username 
             }
-            Axios.get(`${API_URL}/transactions?status=oncart&userId=${props.User.id}`) //kalo user udah punya cart
-            .then((res1)=>{
-                if(res1.data.length){
-                    Axios.get(`${API_URL}/transactions?_embed=transactiondetails&status=oncart&userId=${props.User.id}`) //kalo di cart user udah ada product id
-                    .then ((res4)=>{
-                        var addnewproduct = false
-                         res4.data[0].transactiondetails.map((val)=>{
-                            if(val.productId===data.id){ //kalo ada produk yg sama
-                                addnewproduct=true
-                                console.log('ada')
-                                var addqty ={
-                                    qty: val.qty+qty,
-                                }
-                                Axios.patch(`${API_URL}/transactiondetails/${val.id}`, addqty)
-                                 .then ((res3)=>{
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'added to cart!',
-                                      })
-                                      props.Getdata()
-                                }).catch((err)=>{
-                                    console.log(err.message)
-                                })
-                            }
-                        })
-                        if(addnewproduct===false){ //kalo ga ada produk yang sama 
-                            var objdetails={
-                                transactionId:res1.data[0].id,
-                                productId:data.id,
-                                qty:qty
-                            }
-                            Axios.post(`${API_URL}/transactiondetails`, objdetails)
-                            .then ((res3)=>{
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'added to cart!',
-                                  })
-                                props.Getdata()
-                            })
-                        }
-                    })
-                }else{
-                    Axios.post(`${API_URL}/transactions`,objtransaction) //kalo user belum punya cart, maka buat dulu
-                    .then((res2)=>{
-                        var objdetails={
-                            transactionId:res2.data.id,
-                            productId:data.id,
-                            qty:qty
-                        }
-                        Axios.post(`${API_URL}/transactiondetails`, objdetails)
-                        .then ((res3)=>{
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'added to cart!',
-                              })
-                              props.Getdata()
-                        })
-                    })
-                }
+            Axios.post(`${API_URL}/transaction/sendtocart`,objtransaction)
+            .then((res)=>{
+                console.log(res)
+                Swal.fire({
+                    icon: 'success',
+                    title: 'added to cart!',
+                  })
+                  props.Getdata()
+
             }).catch((err)=>{
-                console.log(err)
+                console.log(err.message)
             })
+            // Axios.get(`${API_URL}/transactions?status=oncart&userId=${props.User.id}`) //kalo user udah punya cart
+            // .then((res1)=>{
+            //     if(res1.data.length){
+            //         Axios.get(`${API_URL}/transactions?_embed=transactiondetails&status=oncart&userId=${props.User.id}`) //kalo di cart user udah ada product id
+            //         .then ((res4)=>{
+            //             var addnewproduct = false
+            //              res4.data[0].transactiondetails.map((val)=>{
+            //                 if(val.productId===data.id){ //kalo ada produk yg sama
+            //                     addnewproduct=true
+            //                     console.log('ada')
+            //                     var addqty ={
+            //                         qty: val.qty+qty,
+            //                     }
+            //                     Axios.patch(`${API_URL}/transactiondetails/${val.id}`, addqty)
+            //                      .then ((res3)=>{
+            //                         Swal.fire({
+            //                             icon: 'success',
+            //                             title: 'added to cart!',
+            //                           })
+            //                           props.Getdata()
+            //                     }).catch((err)=>{
+            //                         console.log(err.message)
+            //                     })
+            //                 }
+            //             })
+            //             if(addnewproduct===false){ //kalo ga ada produk yang sama 
+            //                 var objdetails={
+            //                     transactionId:res1.data[0].id,
+            //                     productId:data.id,
+            //                     qty:qty
+            //                 }
+            //                 Axios.post(`${API_URL}/transactiondetails`, objdetails)
+            //                 .then ((res3)=>{
+            //                     Swal.fire({
+            //                         icon: 'success',
+            //                         title: 'added to cart!',
+            //                       })
+            //                     props.Getdata()
+            //                 })
+            //             }
+            //         })
+            //     }else{
+            //         Axios.post(`${API_URL}/transactions`,objtransaction) //kalo user belum punya cart, maka buat dulu
+            //         .then((res2)=>{
+            //             var objdetails={
+            //                 transactionId:res2.data.id,
+            //                 productId:data.id,
+            //                 qty:qty
+            //             }
+            //             Axios.post(`${API_URL}/transactiondetails`, objdetails)
+            //             .then ((res3)=>{
+            //                 Swal.fire({
+            //                     icon: 'success',
+            //                     title: 'added to cart!',
+            //                   })
+            //                   props.Getdata()
+            //             })
+            //         })
+            //     }
+            // }).catch((err)=>{
+            //     console.log(err)
+            // })
         }else{
             setmodalopen(true)
         }
     }
 
     const onToLoginClick=()=>{
-        if(props.User.role==='admin'){
+        if(props.User.role===0){
             setmodalopen(false)
         }else{
             setmodalopen(false)
@@ -156,7 +170,7 @@ const ProductDetail =(props)=>{
         })
     })
 
-    const {name,image,brand,price,description,stock, seen}=data
+    const {name,image,brand,price,description,stock}=data
     if(redirectlog){
         return <Redirect to='/login'/>
     }
@@ -167,7 +181,7 @@ const ProductDetail =(props)=>{
                 <Modal toggle={()=>setmodalopen(false)} isOpen={modalopen}>
                     <ModalBody>
                         {
-                            props.User.role==='admin'?
+                            props.User.role===0?
                             'Sorry, you are admin'
                             :
                             'Sorry, you have to login first'
@@ -183,7 +197,7 @@ const ProductDetail =(props)=>{
                     </div>
                     <div className="col-md-4 p-2" >
                         <div className="tiles">
-                            <div className="tile" data-scale="1.5" data-image={image}></div>
+                            <div className="tile" data-scale="1.5" data-image={API_URL+image}></div>
                         </div>
                     </div>
                     <div className="col-md-6 mt-5 ">

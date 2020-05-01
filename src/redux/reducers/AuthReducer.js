@@ -13,6 +13,7 @@ const INITIAL_STATE={
     loading:false,
     islogin:false,
     errormes:'',
+    isverified:0
 }
 
 export default (state=INITIAL_STATE,action)=>{
@@ -23,6 +24,8 @@ export default (state=INITIAL_STATE,action)=>{
             return{...state,loading:false,...action.payload,islogin:true}
         case USER_LOGIN_FAILED:
             return{...state,loading:false,errormes:action.payload}
+        case 'AFTER_VERIFIED':
+            return {...state,...action.payload}
         case 'ErrorClear':
             return state
         default:

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Button, Row, Col } from 'reactstrap';
 import classnames from 'classnames';
-// import ShippingForm from '../components/shippingform'
 import ChangePassword from '../components/changepassword';
 import { connect}from "react-redux"
 
