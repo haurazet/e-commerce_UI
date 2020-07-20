@@ -104,6 +104,7 @@ class ManageAdmin extends Component {
             },
         }
         formdata.append('image',this.state.addimagefile)
+        console.log(this.state.addimagefile)
         formdata.append('data',JSON.stringify(obj)) // json.stringify mengubah objek menjadi json
         Axios.post(`${API_URL}/product/addprod`,formdata,Headers)
         .then((res)=>{
@@ -174,6 +175,7 @@ class ManageAdmin extends Component {
             },
         }
         formdata.append('image',this.state.editimagefile)
+        console.log(this.state.editimagefile)
         formdata.append('data',JSON.stringify(obj)) // json.stringify mengubah objek menjadi json
         var id=this.state.products[this.state.indexedit].id
         Axios.put(`${API_URL}/product/editprod/${id}`,formdata,Headers)

@@ -3,7 +3,7 @@ import {
     Card, CardBody,
     CardTitle, CardSubtitle, Spinner
   } from 'reactstrap';
-  import { MDBPagination, MDBPageItem, MDBPageNav, MDBCol, MDBRow ,MDBBtn } from "mdbreact";
+import { MDBPagination, MDBPageItem, MDBPageNav, MDBCol, MDBRow ,MDBBtn } from "mdbreact";
 import Axios from 'axios'
 import { API_URL } from '../supports/Apiurl';
 import Numeral from 'numeral'
@@ -27,7 +27,6 @@ class Productpage extends Component {
             this.setState({category:res.data})
         })
         this.getData()
-
     }
 
     getData=(search,filter)=>{
@@ -89,7 +88,7 @@ class Productpage extends Component {
         })
     }
 
-    renderpagination=()=>{
+    renderpagination=()=>{ 
         console.log('masuk pagination')
         var totalpage = Math.ceil(this.state.totalproduct/8)
         var arr=[]
